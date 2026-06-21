@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Language Translator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl overflow-hidden p-6 md:p-8 space-y-6">
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-indigo-900 tracking-tight flex items-center justify-center gap-2">
+                <i class="fa-solid fa-language text-indigo-600"></i> AI Translator Tool
+            </h1>
+            <p class="text-gray-500 text-sm">Translate text instantly across multiple languages</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <div class="w-full sm:w-5/12">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">From</label>
+                <select id="sourceLang" class="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-gray-700 outline-none focus:border-indigo-500 font-medium cursor-pointer">
+                    </select>
+            </div>
+
+            <button id="swapBtn" class="bg-white hover:bg-indigo-600 border border-gray-200 text-gray-600 hover:text-white p-3 rounded-full shadow-sm hover:shadow transition-all duration-200 cursor-pointer transform active:scale-95">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+
+            <div class="w-full sm:w-5/12">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">To</label>
+                <select id="targetLang" class="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-gray-700 outline-none focus:border-indigo-500 font-medium cursor-pointer">
+                    </select>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="relative flex flex-col border border-gray-200 rounded-xl focus-within:border-indigo-500 transition-all bg-white shadow-sm">
+                <textarea id="sourceText" placeholder="Type something to translate..." max="5000" rows="6" class="w-full p-4 resize-none outline-none text-gray-800 rounded-t-xl placeholder-gray-400"></textarea>
+                <div class="flex items-center justify-between border-t border-gray-100 p-3 bg-gray-50 rounded-b-xl">
+                    <div class="flex gap-3">
+                        <button id="speakSource" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+                        <button id="copySource" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Copy"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                    <span id="charCount" class="text-xs text-gray-400">0 / 5000</span>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
+                <textarea id="targetText" placeholder="Translation will appear here..." readonly rows="6" class="w-full p-4 resize-none outline-none text-gray-800 rounded-t-xl bg-transparent placeholder-gray-400"></textarea>
+                <div class="flex items-center justify-between border-t border-gray-100 p-3 bg-gray-50 rounded-b-xl">
+                    <div class="flex gap-3">
+                        <button id="speakTarget" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+                        <button id="copyTarget" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Copy"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="translateBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2">
+            <span id="btnText">Translate Text</span>
+            <div id="btnLoader" class="hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
