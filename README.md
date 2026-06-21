@@ -3,7 +3,7 @@
 A clean, responsive, and instant Language Translation Tool built as part of the **CodeAlpha Software Development Internship** (Task 1).
 
 ## 🚀 Live Demo
-Aap yahan apni live GitHub Pages ki link paste kar dena (e.g., https://yourusername.github.io/AI-Language-Translation-Tool/)
+https://shivamkumarchoudharyniet.github.io/AI-Language-Translation-Tool/
 
 ## ✨ Features
 - **Instant Translation:** Seamless translation between multiple languages using the MyMemory API.
