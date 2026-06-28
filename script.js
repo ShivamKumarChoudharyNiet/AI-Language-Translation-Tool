@@ -72,7 +72,11 @@ async function translateData() {
     translateBtn.disabled = true;
 
     try {
-        const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${translateFrom}|${translateTo}`;
+        // FIX: Extract 2-letter ISO codes (e.g., "hi-IN" becomes "hi", "en-GB" becomes "en")
+        const fromCode = translateFrom.split('-')[0];
+        const toCode = translateTo.split('-')[0];
+
+        const apiUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${fromCode}|${toCode}`;
         const response = await fetch(apiUrl);
         const data = await response.json();
         
