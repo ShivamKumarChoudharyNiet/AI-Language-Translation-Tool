@@ -1,154 +1,129 @@
+// Supported Languages List
+const countries = {
+    "en-GB": "English",
+    "hi-IN": "Hindi",
+    "es-ES": "Spanish",
+    "fr-FR": "French",
+    "de-DE": "German",
+    "ar-SA": "Arabic",
+    "zh-CN": "Chinese (Simplified)",
+    "ja-JP": "Japanese",
+    "ru-RU": "Russian",
+    "it-IT": "Italian"
+};
+
+// DOM Elements
+const sourceSelect = document.getElementById("sourceLang");
+const targetSelect = document.getElementById("targetLang");
 const sourceText = document.getElementById("sourceText");
 const targetText = document.getElementById("targetText");
-
-const sourceLang = document.getElementById("sourceLang");
-const targetLang = document.getElementById("targetLang");
-
 const translateBtn = document.getElementById("translateBtn");
-const swapBtn = document.getElementById("swapBtn");
-
-const copySource = document.getElementById("copySource");
-const copyTarget = document.getElementById("copyTarget");
-
-const speakSource = document.getElementById("speakSource");
-const speakTarget = document.getElementById("speakTarget");
-
-const charCount = document.getElementById("charCount");
-
 const btnText = document.getElementById("btnText");
 const btnLoader = document.getElementById("btnLoader");
+const swapBtn = document.getElementById("swapBtn");
+const charCount = document.getElementById("charCount");
 
+// Populate Language Dropdowns
+function populateLanguages() {
+    Object.entries(countries).forEach(([code, name]) => {
+        let optionSource = `<option value="${code}">${name}</option>`;
+        let optionTarget = `<option value="${code}">${name}</option>`;
+        sourceSelect.insertAdjacentHTML("beforeend", optionSource);
+        targetSelect.insertAdjacentHTML("beforeend", optionTarget);
+    });
+    
+    // Default selections
+    sourceSelect.value = "en-GB";
+    targetSelect.value = "hi-IN";
+}
+
+// Character Counter
 sourceText.addEventListener("input", () => {
     charCount.textContent = `${sourceText.value.length} / 5000`;
 });
 
-translateBtn.addEventListener("click", translateText);
-
+// Swap Languages and Texts
 swapBtn.addEventListener("click", () => {
+    let tempLang = sourceSelect.value;
+    sourceSelect.value = targetSelect.value;
+    targetSelect.value = tempLang;
 
-    const tempLang = sourceLang.value;
-    sourceLang.value = targetLang.value;
-    targetLang.value = tempLang;
-
-    const tempText = sourceText.value;
+    let tempText = sourceText.value;
     sourceText.value = targetText.value;
     targetText.value = tempText;
-
+    
     charCount.textContent = `${sourceText.value.length} / 5000`;
-
 });
 
-copySource.addEventListener("click", () => {
-
-    if (!sourceText.value) return;
-
-    navigator.clipboard.writeText(sourceText.value);
-
-});
-
-copyTarget.addEventListener("click", () => {
-
-    if (!targetText.value) return;
-
-    navigator.clipboard.writeText(targetText.value);
-
-});
-
-function speak(text, lang) {
-
-    if (!text) return;
-
-    speechSynthesis.cancel();
-
-    const speech = new SpeechSynthesisUtterance(text);
-
-    speech.lang = lang;
-
-    speech.rate = 1;
-
-    speech.pitch = 1;
-
-    speechSynthesis.speak(speech);
-
-}
-
-speakSource.addEventListener("click", () => {
-
-    speak(sourceText.value, sourceLang.value);
-
-});
-
-speakTarget.addEventListener("click", () => {
-
-    speak(targetText.value, targetLang.value);
-
-});
-
-async function translateText() {
-
+// Accurate Google Translate Alternative API Call
+async function translateData() {
     const text = sourceText.value.trim();
+    const translateFrom = sourceSelect.value.split('-')[0]; // "en"
+    const translateTo = targetSelect.value.split('-')[0];   // "hi"
 
-    if (text === "") {
-
+    if (!text) {
         targetText.value = "";
-
         return;
-
     }
 
+    // Loader Show
     btnText.textContent = "Translating...";
-
     btnLoader.classList.remove("hidden");
-
     translateBtn.disabled = true;
 
     try {
-
-        const url =
-            `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceLang.value}|${targetLang.value}`;
-
-        const response = await fetch(url);
-
+        // High Accuracy Google Translate Engine Endpoint
+        const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${translateFrom}&tl=${translateTo}&dt=t&q=${encodeURIComponent(text)}`;
+        
+        const response = await fetch(apiUrl);
         const data = await response.json();
-
-        if (
-            data &&
-            data.responseData &&
-            data.responseData.translatedText
-        ) {
-
-            targetText.value = data.responseData.translatedText;
-
+        
+        // Parse Google Translate output layout safely
+        if (data && data[0] && data[0][0] && data[0][0][0]) {
+            targetText.value = data[0][0][0];
         } else {
-
-            targetText.value = "Translation failed.";
-
+            targetText.value = "Translation Error. Please try again.";
         }
-
     } catch (error) {
-
-        console.error(error);
-
-        targetText.value = "Network Error.";
-
+        console.error("API Error:", error);
+        targetText.value = "Network error. Check connection.";
     } finally {
-
+        // Loader Hide
+        btnText.textContent = "Translate Text";
         btnLoader.classList.add("hidden");
-
-        btnText.textContent = "Translate";
-
         translateBtn.disabled = false;
-
     }
-
 }
 
-sourceText.addEventListener("keydown", (e) => {
+translateBtn.addEventListener("click", translateData);
 
-    if (e.ctrlKey && e.key === "Enter") {
+// --- Usability Features (Copy & Text-To-Speech) ---
 
-        translateText();
-
-    }
-
+// Copy Functions
+document.getElementById("copySource").addEventListener("click", () => {
+    if(sourceText.value) navigator.clipboard.writeText(sourceText.value);
 });
+document.getElementById("copyTarget").addEventListener("click", () => {
+    if(targetText.value) navigator.clipboard.writeText(targetText.value);
+});
+
+// Text-to-Speech Function
+function speak(text, langCode) {
+    if ('speechSynthesis' in window && text) {
+        window.speechSynthesis.cancel(); // Stop any ongoing speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode;
+        window.speechSynthesis.speak(utterance);
+    }
+}
+
+document.getElementById("speakSource").addEventListener("click", () => {
+    speak(sourceText.value, sourceSelect.value);
+});
+
+document.getElementById("speakTarget").addEventListener("click", () => {
+    speak(targetText.value, targetSelect.value);
+});
+
+// Initialize on load
+populateLanguages();
