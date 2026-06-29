@@ -25,6 +25,10 @@ const charCount = document.getElementById("charCount");
 
 // Populate Language Dropdowns
 function populateLanguages() {
+    // Clear innerHTML first to avoid duplicate or broken states
+    sourceSelect.innerHTML = "";
+    targetSelect.innerHTML = "";
+
     Object.entries(countries).forEach(([code, name]) => {
         let optionSource = `<option value="${code}">${name}</option>`;
         let optionTarget = `<option value="${code}">${name}</option>`;
@@ -58,27 +62,24 @@ swapBtn.addEventListener("click", () => {
 // Accurate Google Translate Alternative API Call
 async function translateData() {
     const text = sourceText.value.trim();
-    const translateFrom = sourceSelect.value.split('-')[0]; // "en"
-    const translateTo = targetSelect.value.split('-')[0];   // "hi"
+    const translateFrom = sourceSelect.value.split('-')[0];
+    const translateTo = targetSelect.value.split('-')[0];
 
     if (!text) {
         targetText.value = "";
         return;
     }
 
-    // Loader Show
     btnText.textContent = "Translating...";
     btnLoader.classList.remove("hidden");
     translateBtn.disabled = true;
 
     try {
-        // High Accuracy Google Translate Engine Endpoint
         const apiUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${translateFrom}&tl=${translateTo}&dt=t&q=${encodeURIComponent(text)}`;
         
         const response = await fetch(apiUrl);
         const data = await response.json();
         
-        // Parse Google Translate output layout safely
         if (data && data[0] && data[0][0] && data[0][0][0]) {
             targetText.value = data[0][0][0];
         } else {
@@ -88,7 +89,6 @@ async function translateData() {
         console.error("API Error:", error);
         targetText.value = "Network error. Check connection.";
     } finally {
-        // Loader Hide
         btnText.textContent = "Translate Text";
         btnLoader.classList.add("hidden");
         translateBtn.disabled = false;
@@ -99,7 +99,6 @@ translateBtn.addEventListener("click", translateData);
 
 // --- Usability Features (Copy & Text-To-Speech) ---
 
-// Copy Functions
 document.getElementById("copySource").addEventListener("click", () => {
     if(sourceText.value) navigator.clipboard.writeText(sourceText.value);
 });
@@ -107,10 +106,9 @@ document.getElementById("copyTarget").addEventListener("click", () => {
     if(targetText.value) navigator.clipboard.writeText(targetText.value);
 });
 
-// Text-to-Speech Function
 function speak(text, langCode) {
     if ('speechSynthesis' in window && text) {
-        window.speechSynthesis.cancel(); // Stop any ongoing speech
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = langCode;
         window.speechSynthesis.speak(utterance);
@@ -125,5 +123,7 @@ document.getElementById("speakTarget").addEventListener("click", () => {
     speak(targetText.value, targetSelect.value);
 });
 
-// Initialize on load
-populateLanguages();
+// FIXED: Safer initialization wrapped inside DOMContentLoaded listener
+document.addEventListener("DOMContentLoaded", () => {
+    populateLanguages();
+});
