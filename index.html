@@ -1,490 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>English ↔ Hindi AI Translator</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #f5f5f3;
-      --surface: #ffffff;
-      --surface2: #f0efeb;
-      --border: #e2e0d8;
-      --border-strong: #c8c6bc;
-      --text: #1a1a18;
-      --text-sec: #6b6963;
-      --text-muted: #9e9c96;
-      --accent: #1a1a18;
-      --radius: 8px;
-    }
-
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #141412;
-        --surface: #1e1e1c;
-        --surface2: #252523;
-        --border: #2e2e2b;
-        --border-strong: #3a3a36;
-        --text: #f0efe9;
-        --text-sec: #9e9c96;
-        --text-muted: #6b6963;
-        --accent: #f0efe9;
-      }
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 2rem 1rem;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 2rem;
-    }
-
-    header h1 {
-      font-size: 1.6rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-    }
-
-    header p {
-      font-size: 14px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 780px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .lang-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .lang-label {
-      font-size: 14px;
-      font-weight: 500;
-      background: var(--surface);
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      padding: 7px 24px;
-      min-width: 130px;
-      text-align: center;
-    }
-
-    .swap-btn {
-      background: var(--surface);
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: var(--text-sec);
-      font-size: 20px;
-      transition: background 0.15s, color 0.15s;
-    }
-    .swap-btn:hover { background: var(--surface2); color: var(--text); }
-
-    .panels {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    @media (max-width: 540px) {
-      .panels { grid-template-columns: 1fr; }
-    }
-
-    .panel {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      min-height: 220px;
-    }
-
-    .panel.output { background: var(--surface2); }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 14px 8px;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    .panel-lang {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .copy-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--text-muted);
-      font-size: 16px;
-      display: flex;
-      align-items: center;
-      padding: 2px;
-      border-radius: 4px;
-      transition: color 0.15s;
-    }
-    .copy-btn:hover { color: var(--text); }
-
-    textarea {
-      flex: 1;
-      border: none;
-      background: transparent;
-      resize: none;
-      padding: 14px;
-      font-size: 15px;
-      color: var(--text);
-      font-family: inherit;
-      line-height: 1.7;
-      outline: none;
-      min-height: 180px;
-    }
-    textarea::placeholder { color: var(--text-muted); }
-
-    .output-text {
-      flex: 1;
-      padding: 14px;
-      font-size: 15px;
-      color: var(--text);
-      line-height: 1.7;
-      min-height: 180px;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .placeholder { color: var(--text-muted); }
-
-    .translate-btn {
-      width: 100%;
-      padding: 12px;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      border-radius: var(--radius);
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: opacity 0.15s;
-      font-family: inherit;
-    }
-    .translate-btn:hover { opacity: 0.85; }
-    .translate-btn:disabled { opacity: 0.4; cursor: default; }
-
-    .footer-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .status-dot {
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--text-muted);
-      margin-right: 6px;
-      vertical-align: middle;
-    }
-    .status-dot.loading { background: #EF9F27; animation: blink 1s infinite; }
-    .status-dot.done    { background: #1D9E75; }
-    .status-dot.error   { background: #E24B4A; }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.25; }
-    }
-
-    /* ── API key prompt overlay ── */
-    #key-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,0.55);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 100;
-    }
-
-    .key-card {
-      background: var(--surface);
-      border: 0.5px solid var(--border-strong);
-      border-radius: 14px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 420px;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .key-card h2 { font-size: 1.1rem; font-weight: 600; }
-    .key-card p  { font-size: 13px; color: var(--text-sec); line-height: 1.6; }
-
-    .key-card input {
-      width: 100%;
-      padding: 10px 12px;
-      border: 0.5px solid var(--border-strong);
-      border-radius: var(--radius);
-      background: var(--surface2);
-      color: var(--text);
-      font-size: 14px;
-      font-family: monospace;
-      outline: none;
-    }
-    .key-card input:focus { border-color: var(--text-muted); }
-
-    .key-card button {
-      padding: 10px;
-      background: var(--accent);
-      color: var(--bg);
-      border: none;
-      border-radius: var(--radius);
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: inherit;
-      transition: opacity 0.15s;
-    }
-    .key-card button:hover { opacity: 0.85; }
-
-    .key-note {
-      font-size: 11px;
-      color: var(--text-muted);
-      text-align: center;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Language Translator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
 
-<!-- API Key Overlay -->
-<div id="key-overlay">
-  <div class="key-card">
-    <h2>Enter your Anthropic API key</h2>
-    <p>Your key is stored only in your browser (localStorage) and never sent anywhere except Anthropic's API.</p>
-    <input type="password" id="api-key-input" placeholder="sk-ant-..." />
-    <button id="save-key-btn">Save &amp; continue</button>
-    <p class="key-note">Get a key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a></p>
-  </div>
-</div>
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl overflow-hidden p-6 md:p-8 space-y-6">
+        <div class="text-center space-y-2">
+            <h1 class="text-3xl font-bold text-indigo-900 tracking-tight flex items-center justify-center gap-2">
+                <i class="fa-solid fa-language text-indigo-600"></i> AI Translator Tool
+            </h1>
+            <p class="text-gray-500 text-sm">Translate text instantly across multiple languages</p>
+        </div>
 
-<header>
-  <h1>English ↔ Hindi Translator</h1>
-  <p>Powered by Claude AI</p>
-</header>
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4 bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <div class="w-full sm:w-5/12">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">From</label>
+                <select id="sourceLang" class="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-gray-700 outline-none focus:border-indigo-500 font-medium cursor-pointer">
+                </select>
+            </div>
 
-<div class="container">
+            <button id="swapBtn" class="bg-white hover:bg-indigo-600 border border-gray-200 text-gray-600 hover:text-white p-3 rounded-full shadow-sm hover:shadow transition-all duration-200 cursor-pointer transform active:scale-95">
+                <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
 
-  <div class="lang-bar">
-    <div class="lang-label" id="src-label">English</div>
-    <button class="swap-btn" id="swap-btn" title="Swap languages">
-      <i class="ti ti-arrows-exchange"></i>
-    </button>
-    <div class="lang-label" id="tgt-label">Hindi</div>
-  </div>
+            <div class="w-full sm:w-5/12">
+                <label class="block text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">To</label>
+                <select id="targetLang" class="w-full bg-white border border-gray-200 rounded-lg p-2.5 text-gray-700 outline-none focus:border-indigo-500 font-medium cursor-pointer">
+                </select>
+            </div>
+        </div>
 
-  <div class="panels">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-lang" id="src-panel-lang">English</span>
-        <button class="copy-btn" id="copy-src-btn" title="Copy source">
-          <i class="ti ti-copy"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="relative flex flex-col border border-gray-200 rounded-xl focus-within:border-indigo-500 transition-all bg-white shadow-sm">
+                <textarea id="sourceText" placeholder="Type something to translate..." max="5000" rows="6" class="w-full p-4 resize-none outline-none text-gray-800 rounded-t-xl placeholder-gray-400"></textarea>
+                <div class="flex items-center justify-between border-t border-gray-100 p-3 bg-gray-50 rounded-b-xl">
+                    <div class="flex gap-3">
+                        <button id="speakSource" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+                        <button id="copySource" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Copy"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                    <span id="charCount" class="text-xs text-gray-400">0 / 5000</span>
+                </div>
+            </div>
+
+            <div class="relative flex flex-col border border-gray-200 rounded-xl bg-gray-50 shadow-sm">
+                <textarea id="targetText" placeholder="Translation will appear here..." readonly rows="6" class="w-full p-4 resize-none outline-none text-gray-800 rounded-t-xl bg-transparent placeholder-gray-400"></textarea>
+                <div class="flex items-center justify-between border-t border-gray-100 p-3 bg-gray-50 rounded-b-xl">
+                    <div class="flex gap-3">
+                        <button id="speakTarget" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Listen"><i class="fa-solid fa-volume-high"></i></button>
+                        <button id="copyTarget" class="text-gray-400 hover:text-indigo-600 transition cursor-pointer" title="Copy"><i class="fa-solid fa-copy"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button id="translateBtn" class="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-3.5 px-6 rounded-xl shadow-md hover:shadow-lg transition-all transform active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2">
+            <span id="btnText">Translate Text</span>
+            <div id="btnLoader" class="hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
         </button>
-      </div>
-      <textarea id="input-text" placeholder="Type something to translate…" maxlength="2000"></textarea>
     </div>
 
-    <div class="panel output">
-      <div class="panel-header">
-        <span class="panel-lang" id="tgt-panel-lang">Hindi</span>
-        <button class="copy-btn" id="copy-tgt-btn" title="Copy translation">
-          <i class="ti ti-copy"></i>
-        </button>
-      </div>
-      <div class="output-text" id="output-text">
-        <span class="placeholder">Translation will appear here…</span>
-      </div>
-    </div>
-  </div>
-
-  <button class="translate-btn" id="translate-btn" disabled>
-    <i class="ti ti-language"></i>
-    Translate
-  </button>
-
-  <div class="footer-row">
-    <div>
-      <span class="status-dot" id="status-dot"></span>
-      <span id="status-msg">Ready</span>
-    </div>
-    <span id="char-count">0 / 2000</span>
-  </div>
-
-</div>
-
-<script>
-  // ── API Key ──
-  const overlay    = document.getElementById('key-overlay');
-  const apiKeyInput = document.getElementById('api-key-input');
-  const saveKeyBtn  = document.getElementById('save-key-btn');
-
-  let API_KEY = localStorage.getItem('anthropic_api_key') || '';
-  if (API_KEY) overlay.style.display = 'none';
-
-  saveKeyBtn.addEventListener('click', () => {
-    const val = apiKeyInput.value.trim();
-    if (!val.startsWith('sk-')) return alert('Invalid key. Must start with sk-');
-    API_KEY = val;
-    localStorage.setItem('anthropic_api_key', val);
-    overlay.style.display = 'none';
-  });
-
-  // ── Translator ──
-  let direction = 'en-hi';
-  let isLoading = false;
-
-  const inputEl     = document.getElementById('input-text');
-  const outputEl    = document.getElementById('output-text');
-  const translateBtn = document.getElementById('translate-btn');
-  const swapBtn     = document.getElementById('swap-btn');
-  const srcLabel    = document.getElementById('src-label');
-  const tgtLabel    = document.getElementById('tgt-label');
-  const srcPanel    = document.getElementById('src-panel-lang');
-  const tgtPanel    = document.getElementById('tgt-panel-lang');
-  const statusDot   = document.getElementById('status-dot');
-  const statusMsg   = document.getElementById('status-msg');
-  const charCount   = document.getElementById('char-count');
-  const copySrcBtn  = document.getElementById('copy-src-btn');
-  const copyTgtBtn  = document.getElementById('copy-tgt-btn');
-
-  function setStatus(type, msg) {
-    statusDot.className = 'status-dot ' + (type || '');
-    statusMsg.textContent = msg;
-  }
-
-  function updateLabels() {
-    const src = direction === 'en-hi' ? 'English' : 'Hindi';
-    const tgt = direction === 'en-hi' ? 'Hindi'   : 'English';
-    srcLabel.textContent = src; tgtLabel.textContent = tgt;
-    srcPanel.textContent = src; tgtPanel.textContent = tgt;
-    inputEl.placeholder  = direction === 'en-hi'
-      ? 'Type something to translate…'
-      : 'अनुवाद के लिए कुछ लिखें…';
-  }
-
-  inputEl.addEventListener('input', () => {
-    const len = inputEl.value.length;
-    charCount.textContent = len + ' / 2000';
-    translateBtn.disabled = len === 0 || isLoading;
-    if (len === 0) {
-      outputEl.innerHTML = '<span class="placeholder">Translation will appear here…</span>';
-      setStatus('', 'Ready');
-    }
-  });
-
-  swapBtn.addEventListener('click', () => {
-    if (isLoading) return;
-    direction = direction === 'en-hi' ? 'hi-en' : 'en-hi';
-    const hasOutput = !outputEl.querySelector('.placeholder');
-    inputEl.value = hasOutput ? outputEl.innerText.trim() : '';
-    outputEl.innerHTML = '<span class="placeholder">Translation will appear here…</span>';
-    charCount.textContent = inputEl.value.length + ' / 2000';
-    translateBtn.disabled = inputEl.value.length === 0;
-    updateLabels();
-    setStatus('', 'Ready');
-  });
-
-  async function translate() {
-    const text = inputEl.value.trim();
-    if (!text || isLoading) return;
-    isLoading = true;
-    translateBtn.disabled = true;
-    outputEl.innerHTML = '<span class="placeholder">Translating…</span>';
-    setStatus('loading', 'Translating…');
-
-    const src = direction === 'en-hi' ? 'English' : 'Hindi';
-    const tgt = direction === 'en-hi' ? 'Hindi'   : 'English';
-
-    try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': API_KEY,
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true'
-        },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 1000,
-          system: `You are an expert translator. Translate the given ${src} text into ${tgt} accurately and naturally. Return ONLY the translated text, no explanation, no quotes, no labels.`,
-          messages: [{ role: 'user', content: text }]
-        })
-      });
-
-      const data = await res.json();
-      if (data.content && data.content[0]) {
-        outputEl.textContent = data.content[0].text;
-        setStatus('done', 'Done');
-      } else {
-        throw new Error('bad response');
-      }
-    } catch (e) {
-      outputEl.innerHTML = '<span class="placeholder">Something went wrong. Try again.</span>';
-      setStatus('error', 'Error — try again');
-    } finally {
-      isLoading = false;
-      translateBtn.disabled = inputEl.value.trim().length === 0;
-    }
-  }
-
-  translateBtn.addEventListener('click', translate);
-  inputEl.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') translate();
-  });
-
-  async function copy(text) {
-    try { await navigator.clipboard.writeText(text); } catch {}
-  }
-  copySrcBtn.addEventListener('click', () => copy(inputEl.value));
-  copyTgtBtn.addEventListener('click', () => {
-    if (!outputEl.querySelector('.placeholder')) copy(outputEl.innerText);
-  });
-
-  updateLabels();
-</script>
+    <script src="script.js"></script>
 </body>
 </html>
