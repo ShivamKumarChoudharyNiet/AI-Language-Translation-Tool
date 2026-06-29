@@ -1,738 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VoiceNotes AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
-<style>
-  :root {
-    --bg: #0a0a0f;
-    --card: #111118;
-    --border: #1e1e2e;
-    --accent: #7c6aff;
-    --accent2: #ff6a9b;
-    --accent3: #6af5c8;
-    --text: #e8e8f0;
-    --muted: #6b6b80;
-    --success: #6af5c8;
-    --error: #ff6a9b;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Language Translator</title>
 
-  /* Background grid */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(124,106,255,0.04) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(124,106,255,0.04) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
-  }
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 40px 20px 80px;
-  }
-
-  /* Header */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 48px;
-  }
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800;
-    font-size: 1.4rem;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .dash-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 8px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.85rem;
-    transition: all 0.2s;
-    text-decoration: none;
-    display: inline-block;
-  }
-  .dash-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* Hero */
-  .hero {
-    text-align: center;
-    margin-bottom: 48px;
-  }
-  .hero h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2rem, 5vw, 3.2rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 12px;
-  }
-  .hero h1 span {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .hero p {
-    color: var(--muted);
-    font-size: 1rem;
-    max-width: 480px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-
-  /* Tab Switcher */
-  .tab-bar {
-    display: flex;
-    gap: 4px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 6px;
-    margin-bottom: 28px;
-    overflow-x: auto;
-  }
-  .tab-btn {
-    flex: 1;
-    min-width: 110px;
-    padding: 10px 16px;
-    border: none;
-    border-radius: 10px;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.88rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .tab-btn.active {
-    background: linear-gradient(135deg, rgba(124,106,255,0.25), rgba(255,106,155,0.15));
-    color: var(--text);
-    border: 1px solid rgba(124,106,255,0.3);
-  }
-
-  /* Upload Card */
-  .upload-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 32px;
-    margin-bottom: 24px;
-    display: none;
-  }
-  .upload-card.active { display: block; }
-
-  .drop-zone {
-    border: 2px dashed var(--border);
-    border-radius: 14px;
-    padding: 48px 24px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .drop-zone:hover, .drop-zone.drag-over {
-    border-color: var(--accent);
-    background: rgba(124,106,255,0.05);
-  }
-  .drop-zone input[type="file"] {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    cursor: pointer;
-    width: 100%;
-    height: 100%;
-  }
-  .drop-icon {
-    font-size: 3rem;
-    margin-bottom: 12px;
-    display: block;
-  }
-  .drop-zone h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-  .drop-zone p {
-    color: var(--muted);
-    font-size: 0.85rem;
-  }
-  .file-selected {
-    margin-top: 12px;
-    padding: 10px 16px;
-    background: rgba(106,245,200,0.1);
-    border: 1px solid rgba(106,245,200,0.3);
-    border-radius: 8px;
-    font-size: 0.85rem;
-    color: var(--accent3);
-    display: none;
-  }
-
-  /* Recording section */
-  .record-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    padding: 20px 0;
-  }
-  .record-btn {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: none;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    cursor: pointer;
-    font-size: 2rem;
-    transition: all 0.2s;
-    box-shadow: 0 0 0 0 rgba(124,106,255,0.4);
-  }
-  .record-btn:hover { transform: scale(1.05); }
-  .record-btn.recording {
-    animation: pulse 1.2s ease-in-out infinite;
-    background: linear-gradient(135deg, var(--error), #ff4444);
-  }
-  @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(255,106,155,0.5); }
-    70% { box-shadow: 0 0 0 20px rgba(255,106,155,0); }
-    100% { box-shadow: 0 0 0 0 rgba(255,106,155,0); }
-  }
-  .record-status {
-    color: var(--muted);
-    font-size: 0.9rem;
-    text-align: center;
-  }
-  .record-timer {
-    font-family: 'Syne', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--error);
-    display: none;
-  }
-
-  /* Process Button */
-  .process-btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: white;
-    font-family: 'Syne', sans-serif;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-top: 20px;
-  }
-  .process-btn:hover { opacity: 0.9; transform: translateY(-1px); }
-  .process-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-  /* Progress */
-  .progress-section {
-    display: none;
-    margin-top: 20px;
-  }
-  .progress-step {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 0;
-    border-bottom: 1px solid var(--border);
-  }
-  .progress-step:last-child { border-bottom: none; }
-  .step-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--border);
-    flex-shrink: 0;
-    transition: background 0.3s;
-  }
-  .step-dot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
-  .step-dot.done { background: var(--accent3); }
-  .step-dot.spinning {
-    background: var(--accent);
-    animation: spin-dot 1s linear infinite;
-  }
-  @keyframes spin-dot {
-    0%,100% { opacity:1; } 50% { opacity:0.3; }
-  }
-  .step-label { font-size: 0.85rem; color: var(--muted); }
-  .step-label.active { color: var(--text); }
-
-  /* Results */
-  .results-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 28px;
-    margin-top: 24px;
-    display: none;
-    animation: fadeUp 0.4s ease;
-  }
-  @keyframes fadeUp {
-    from { opacity:0; transform:translateY(16px); }
-    to { opacity:1; transform:translateY(0); }
-  }
-  .results-tabs {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 20px;
-    background: var(--bg);
-    border-radius: 10px;
-    padding: 4px;
-  }
-  .results-tab {
-    flex: 1;
-    padding: 8px;
-    border: none;
-    border-radius: 8px;
-    background: transparent;
-    color: var(--muted);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .results-tab.active { background: var(--card); color: var(--text); }
-  .result-panel { display: none; }
-  .result-panel.active { display: block; }
-  .result-content {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    font-size: 0.88rem;
-    line-height: 1.7;
-    color: #c8c8d8;
-    max-height: 360px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-  }
-  .visual-badge {
-    display: inline-block;
-    background: linear-gradient(135deg, rgba(106,245,200,0.15), rgba(124,106,255,0.15));
-    border: 1px solid rgba(106,245,200,0.3);
-    color: var(--accent3);
-    font-size: 0.75rem;
-    padding: 2px 8px;
-    border-radius: 20px;
-    margin-bottom: 12px;
-  }
-
-  /* Error/Success */
-  .alert {
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 0.88rem;
-    margin-top: 16px;
-    display: none;
-  }
-  .alert.error { background: rgba(255,106,155,0.1); border: 1px solid rgba(255,106,155,0.3); color: var(--error); }
-  .alert.success { background: rgba(106,245,200,0.1); border: 1px solid rgba(106,245,200,0.3); color: var(--accent3); }
-
-  /* Info pills */
-  .info-row {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 8px;
-  }
-  .info-pill {
-    background: rgba(124,106,255,0.08);
-    border: 1px solid rgba(124,106,255,0.2);
-    color: var(--muted);
-    font-size: 0.78rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-  }
-  .info-pill span { color: var(--accent); font-weight: 500; }
-</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
-<div class="container">
 
-  <header>
-    <div class="logo">⚡ VoiceNotes AI</div>
-    <a href="/dashboard" class="dash-btn">📊 Dashboard</a>
-  </header>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex items-center justify-center p-4">
 
-  <div class="hero">
-    <h1>Lecture ke <span>Poore Notes</span><br/>AI se Automatic</h1>
-    <p>Audio, Video, PDF, PPT — sab kuch analyze karo. Diagrams, graphs, slides sab describe hoga.</p>
-  </div>
+<div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl p-6 md:p-8">
 
-  <!-- Tab Bar -->
-  <div class="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('record')">🎙️ Record</button>
-    <button class="tab-btn" onclick="switchTab('audio')">🎵 Audio File</button>
-    <button class="tab-btn" onclick="switchTab('video')">🎬 Video File</button>
-    <button class="tab-btn" onclick="switchTab('document')">📄 PDF / PPT</button>
-  </div>
+    <div class="text-center mb-6">
 
-  <!-- RECORD TAB -->
-  <div class="upload-card active" id="tab-record">
-    <div class="record-section">
-      <div class="record-timer" id="recordTimer">00:00</div>
-      <button class="record-btn" id="recordBtn" onclick="toggleRecording()">🎙️</button>
-      <div class="record-status" id="recordStatus">Click to start recording your lecture</div>
+        <h1 class="text-3xl font-bold text-indigo-700 flex justify-center items-center gap-2">
+            <i class="fa-solid fa-language"></i>
+            AI Language Translator
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            English ⇄ Hindi Translator
+        </p>
+
     </div>
-    <button class="process-btn" id="recordProcessBtn" onclick="processRecording()" disabled>
-      🤖 Transcribe & Summarize
+
+
+    <div class="flex flex-col sm:flex-row items-center gap-4 mb-6">
+
+        <div class="w-full">
+
+            <label class="text-sm font-semibold text-gray-600">
+                From
+            </label>
+
+            <select
+                id="sourceLang"
+                class="w-full mt-1 border rounded-lg p-3 outline-none focus:border-indigo-600">
+
+                <option value="en-GB" selected>
+                    English
+                </option>
+
+                <option value="hi-IN">
+                    Hindi
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <button
+            id="swapBtn"
+            class="mt-6 bg-indigo-600 hover:bg-indigo-700 text-white w-12 h-12 rounded-full">
+
+            <i class="fa-solid fa-arrows-rotate"></i>
+
+        </button>
+
+
+        <div class="w-full">
+
+            <label class="text-sm font-semibold text-gray-600">
+                To
+            </label>
+
+            <select
+                id="targetLang"
+                class="w-full mt-1 border rounded-lg p-3 outline-none focus:border-indigo-600">
+
+                <option value="hi-IN" selected>
+                    Hindi
+                </option>
+
+                <option value="en-GB">
+                    English
+                </option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="grid md:grid-cols-2 gap-6">
+
+        <div class="border rounded-xl">
+
+            <textarea
+                id="sourceText"
+                maxlength="5000"
+                rows="8"
+                placeholder="Enter text..."
+                class="w-full p-4 resize-none outline-none rounded-t-xl"></textarea>
+
+            <div class="flex justify-between items-center border-t p-3 bg-gray-50 rounded-b-xl">
+
+                <div class="space-x-4">
+
+                    <button id="copySource">
+
+                        <i class="fa-solid fa-copy"></i>
+
+                    </button>
+
+                    <button id="speakSource">
+
+                        <i class="fa-solid fa-volume-high"></i>
+
+                    </button>
+
+                </div>
+
+                <span
+                    id="charCount"
+                    class="text-sm text-gray-500">
+
+                    0 / 5000
+
+                </span>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="border rounded-xl bg-gray-50">
+
+            <textarea
+                id="targetText"
+                rows="8"
+                readonly
+                placeholder="Translation..."
+                class="w-full p-4 resize-none outline-none bg-transparent rounded-t-xl"></textarea>
+
+            <div class="flex justify-start gap-4 border-t p-3 rounded-b-xl">
+
+                <button id="copyTarget">
+
+                    <i class="fa-solid fa-copy"></i>
+
+                </button>
+
+                <button id="speakTarget">
+
+                    <i class="fa-solid fa-volume-high"></i>
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <button
+        id="translateBtn"
+        class="mt-6 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl flex justify-center items-center gap-2">
+
+        <span id="btnText">
+
+            Translate
+
+        </span>
+
+        <div
+            id="btnLoader"
+            class="hidden animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent">
+
+        </div>
+
     </button>
-  </div>
-
-  <!-- AUDIO FILE TAB -->
-  <div class="upload-card" id="tab-audio">
-    <div class="drop-zone" id="audioDrop">
-      <input type="file" id="audioInput" accept=".mp3,.wav,.m4a,.ogg,.flac" onchange="fileSelected('audio', this)"/>
-      <span class="drop-icon">🎵</span>
-      <h3>Drop Audio File Here</h3>
-      <p>MP3, WAV, M4A, OGG, FLAC supported</p>
-    </div>
-    <div class="file-selected" id="audioFileInfo"></div>
-    <button class="process-btn" onclick="processFile('audio')" id="audioBtn" disabled>
-      🤖 Transcribe & Summarize
-    </button>
-  </div>
-
-  <!-- VIDEO FILE TAB -->
-  <div class="upload-card" id="tab-video">
-    <div class="drop-zone" id="videoDrop">
-      <input type="file" id="videoInput" accept=".mp4,.mkv,.avi,.mov,.webm" onchange="fileSelected('video', this)"/>
-      <span class="drop-icon">🎬</span>
-      <h3>Drop Video Lecture Here</h3>
-      <p>MP4, MKV, AVI, MOV, WEBM supported</p>
-    </div>
-    <div class="file-selected" id="videoFileInfo"></div>
-    <div class="info-row" style="margin-top:12px;">
-      <div class="info-pill">🎵 Audio <span>Transcribed</span></div>
-      <div class="info-pill">🖼️ Frames <span>Analyzed</span></div>
-      <div class="info-pill">📊 Diagrams <span>Described</span></div>
-    </div>
-    <button class="process-btn" onclick="processFile('video')" id="videoBtn" disabled>
-      🤖 Full Video Analysis
-    </button>
-  </div>
-
-  <!-- DOCUMENT TAB -->
-  <div class="upload-card" id="tab-document">
-    <div class="drop-zone" id="docDrop">
-      <input type="file" id="docInput" accept=".pdf,.pptx,.ppt" onchange="fileSelected('document', this)"/>
-      <span class="drop-icon">📄</span>
-      <h3>Drop PDF or PPT Here</h3>
-      <p>PDF, PPTX, PPT supported — har slide analyze hogi</p>
-    </div>
-    <div class="file-selected" id="documentFileInfo"></div>
-    <div class="info-row" style="margin-top:12px;">
-      <div class="info-pill">📝 Text <span>Extracted</span></div>
-      <div class="info-pill">📊 Charts <span>Described</span></div>
-      <div class="info-pill">🖼️ Diagrams <span>Explained</span></div>
-    </div>
-    <button class="process-btn" onclick="processFile('document')" id="documentBtn" disabled>
-      🤖 Analyze Slides / PDF
-    </button>
-  </div>
-
-  <!-- Progress Steps -->
-  <div class="progress-section" id="progressSection">
-    <div class="progress-step" id="step1">
-      <div class="step-dot" id="dot1"></div>
-      <div class="step-label" id="lbl1">Uploading file...</div>
-    </div>
-    <div class="progress-step" id="step2">
-      <div class="step-dot" id="dot2"></div>
-      <div class="step-label" id="lbl2">Audio transcription...</div>
-    </div>
-    <div class="progress-step" id="step3">
-      <div class="step-dot" id="dot3"></div>
-      <div class="step-label" id="lbl3">Visual analysis...</div>
-    </div>
-    <div class="progress-step" id="step4">
-      <div class="step-dot" id="dot4"></div>
-      <div class="step-label" id="lbl4">Generating final notes...</div>
-    </div>
-  </div>
-
-  <div class="alert" id="alertBox"></div>
-
-  <!-- Results -->
-  <div class="results-card" id="resultsCard">
-    <div class="results-tabs">
-      <button class="results-tab active" onclick="switchResult('summary')">📋 Summary</button>
-      <button class="results-tab" onclick="switchResult('transcript')">📝 Transcript</button>
-      <button class="results-tab" onclick="switchResult('visual')" id="visualTab" style="display:none;">🖼️ Visual</button>
-    </div>
-
-    <div class="result-panel active" id="panel-summary">
-      <div class="result-content" id="summaryContent"></div>
-    </div>
-    <div class="result-panel" id="panel-transcript">
-      <div class="result-content" id="transcriptContent"></div>
-    </div>
-    <div class="result-panel" id="panel-visual">
-      <div class="visual-badge">🤖 AI Vision Analysis</div>
-      <div class="result-content" id="visualContent"></div>
-    </div>
-  </div>
 
 </div>
 
-<script>
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let mediaRecorder, recordedChunks = [], recordingInterval, recordSeconds = 0;
-let isRecording = false;
-let selectedFiles = { audio: null, video: null, document: null };
+<script src="script.js"></script>
 
-// ─── TAB SWITCHING ─────────────────────────────────────────────────────────────
-function switchTab(tab) {
-  document.querySelectorAll('.upload-card').forEach(c => c.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  event.currentTarget.classList.add('active');
-  hideResults();
-}
-
-// ─── FILE SELECTED ─────────────────────────────────────────────────────────────
-function fileSelected(type, input) {
-  const file = input.files[0];
-  if (!file) return;
-  selectedFiles[type] = file;
-  const infoEl = document.getElementById(type + 'FileInfo');
-  infoEl.style.display = 'block';
-  infoEl.textContent = `✅ ${file.name} (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
-  document.getElementById(type + 'Btn').disabled = false;
-}
-
-// ─── RECORDING ─────────────────────────────────────────────────────────────────
-async function toggleRecording() {
-  if (!isRecording) {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      recordedChunks = [];
-      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) recordedChunks.push(e.data); };
-      mediaRecorder.onstop = () => {
-        stream.getTracks().forEach(t => t.stop());
-        document.getElementById('recordProcessBtn').disabled = false;
-        document.getElementById('recordStatus').textContent = `✅ Recording ready! (${formatTime(recordSeconds)})`;
-      };
-      mediaRecorder.start();
-      isRecording = true;
-      recordSeconds = 0;
-      document.getElementById('recordBtn').classList.add('recording');
-      document.getElementById('recordBtn').textContent = '⏹️';
-      document.getElementById('recordTimer').style.display = 'block';
-      document.getElementById('recordStatus').textContent = 'Recording... Click to stop';
-      recordingInterval = setInterval(() => {
-        recordSeconds++;
-        document.getElementById('recordTimer').textContent = formatTime(recordSeconds);
-      }, 1000);
-    } catch(e) {
-      showAlert('Microphone access denied!', 'error');
-    }
-  } else {
-    mediaRecorder.stop();
-    isRecording = false;
-    clearInterval(recordingInterval);
-    document.getElementById('recordBtn').classList.remove('recording');
-    document.getElementById('recordBtn').textContent = '🎙️';
-    document.getElementById('recordTimer').style.display = 'none';
-  }
-}
-
-function formatTime(s) {
-  return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
-}
-
-async function processRecording() {
-  const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-  const file = new File([blob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
-  await submitFile('/process', 'audio_file', file, ['audio']);
-}
-
-// ─── PROCESS FILE ──────────────────────────────────────────────────────────────
-async function processFile(type) {
-  const file = selectedFiles[type];
-  if (!file) return showAlert('Pehle file select karo!', 'error');
-
-  const endpoints = { audio: '/process', video: '/process_video', document: '/process_document' };
-  const fields    = { audio: 'audio_file', video: 'video_file', document: 'doc_file' };
-  const steps     = {
-    audio:    ['audio'],
-    video:    ['upload', 'audio', 'visual', 'combine'],
-    document: ['upload', 'visual', 'combine']
-  };
-
-  await submitFile(endpoints[type], fields[type], file, steps[type]);
-}
-
-// ─── CORE SUBMIT ──────────────────────────────────────────────────────────────
-async function submitFile(endpoint, fieldName, file, stepKeys) {
-  hideResults();
-  showProgress(stepKeys);
-  setAllBtnsDisabled(true);
-
-  const formData = new FormData();
-  formData.append(fieldName, file);
-
-  stepActive(0, stepKeys);
-
-  try {
-    const res = await fetch(endpoint, { method: 'POST', body: formData });
-    stepDone(0, stepKeys);
-    stepActive(1, stepKeys);
-
-    const data = await res.json();
-
-    if (stepKeys.length > 2) {
-      stepDone(1, stepKeys);
-      stepActive(2, stepKeys);
-      await delay(500);
-      stepDone(2, stepKeys);
-      if (stepKeys.length > 3) {
-        stepActive(3, stepKeys);
-        await delay(500);
-        stepDone(3, stepKeys);
-      }
-    } else {
-      stepDone(1, stepKeys);
-    }
-
-    if (data.success) {
-      showResults(data);
-    } else {
-      showAlert('❌ ' + data.error, 'error');
-      hideProgress();
-    }
-  } catch(e) {
-    showAlert('❌ Network error: ' + e.message, 'error');
-    hideProgress();
-  }
-
-  setAllBtnsDisabled(false);
-}
-
-// ─── PROGRESS ─────────────────────────────────────────────────────────────────
-const STEP_LABELS = {
-  upload:  'Uploading file...',
-  audio:   'Transcribing audio...',
-  visual:  'Analyzing visuals & diagrams...',
-  combine: 'Generating comprehensive notes...',
-};
-const STEP_IDS = ['step1','step2','step3','step4'];
-const DOT_IDS  = ['dot1','dot2','dot3','dot4'];
-const LBL_IDS  = ['lbl1','lbl2','lbl3','lbl4'];
-let activeSteps = [];
-
-function showProgress(stepKeys) {
-  activeSteps = stepKeys;
-  const sec = document.getElementById('progressSection');
-  sec.style.display = 'block';
-  STEP_IDS.forEach((id,i) => {
-    document.getElementById(id).style.display = i < stepKeys.length ? 'flex' : 'none';
-    document.getElementById(DOT_IDS[i]).className = 'step-dot';
-    document.getElementById(LBL_IDS[i]).className = 'step-label';
-    if (i < stepKeys.length)
-      document.getElementById(LBL_IDS[i]).textContent = STEP_LABELS[stepKeys[i]] || stepKeys[i];
-  });
-}
-function stepActive(i, keys) {
-  if (i >= keys.length) return;
-  document.getElementById(DOT_IDS[i]).className = 'step-dot spinning';
-  document.getElementById(LBL_IDS[i]).className = 'step-label active';
-}
-function stepDone(i, keys) {
-  if (i >= keys.length) return;
-  document.getElementById(DOT_IDS[i]).className = 'step-dot done';
-}
-function hideProgress() { document.getElementById('progressSection').style.display = 'none'; }
-
-// ─── RESULTS ──────────────────────────────────────────────────────────────────
-function showResults(data) {
-  hideProgress();
-  document.getElementById('summaryContent').textContent    = data.summary || '';
-  document.getElementById('transcriptContent').textContent = data.transcription || '';
-  document.getElementById('visualContent').textContent     = data.visual_analysis || '';
-
-  const visualTab = document.getElementById('visualTab');
-  if (data.visual_analysis && data.visual_analysis.trim()) {
-    visualTab.style.display = 'flex';
-  } else {
-    visualTab.style.display = 'none';
-  }
-
-  document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.result-panel').forEach(p => p.classList.remove('active'));
-  document.querySelector('.results-tab').classList.add('active');
-  document.getElementById('panel-summary').classList.add('active');
-
-  document.getElementById('resultsCard').style.display = 'block';
-}
-
-function hideResults() {
-  document.getElementById('resultsCard').style.display = 'none';
-  document.getElementById('alertBox').style.display = 'none';
-}
-
-function switchResult(tab) {
-  document.querySelectorAll('.results-tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.result-panel').forEach(p => p.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  document.getElementById('panel-' + tab).classList.add('active');
-}
-
-// ─── UTILS ────────────────────────────────────────────────────────────────────
-function showAlert(msg, type) {
-  const el = document.getElementById('alertBox');
-  el.textContent = msg;
-  el.className = 'alert ' + type;
-  el.style.display = 'block';
-}
-function setAllBtnsDisabled(val) {
-  document.querySelectorAll('.process-btn').forEach(b => b.disabled = val);
-}
-function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-// Drag and drop
-['audioDrop','videoDrop','docDrop'].forEach(id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.addEventListener('dragover', e => { e.preventDefault(); el.classList.add('drag-over'); });
-  el.addEventListener('dragleave', () => el.classList.remove('drag-over'));
-  el.addEventListener('drop', e => { e.preventDefault(); el.classList.remove('drag-over'); });
-});
-</script>
 </body>
 </html>
